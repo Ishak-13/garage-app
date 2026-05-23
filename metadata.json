@@ -1,0 +1,6 @@
+{
+  "name": "City Auto Garage",
+  "description": "Premium automotive workshop management, client directory, billing management, service logs, and live status tracking console.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
