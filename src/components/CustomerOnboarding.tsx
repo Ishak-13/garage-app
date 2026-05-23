@@ -11,9 +11,10 @@ export const CustomerOnboarding: React.FC = () => {
   const { currentUser, onboardingStep, setOnboardingStep, addVehicle, updateProfile } = useGarage();
 
   // Step 1: Vehicle Form State
-  const [makeModel, setMakeModel] = useState('');
+  const [carMake, setCarMake] = useState('');
+  const [carModel, setCarModel] = useState('');
   const [plateNumber, setPlateNumber] = useState('');
-  const [odometer, setOdometer] = useState('');
+  const [odometer, setOdometer] = useState('0');
   const [showWarning, setShowWarning] = useState(false);
   const [isSubmitting1, setIsSubmitting1] = useState(false);
 
@@ -25,12 +26,13 @@ export const CustomerOnboarding: React.FC = () => {
 
   const handleStep1Submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!makeModel || !plateNumber) return;
+    if (!carMake || !carModel || !plateNumber) return;
 
     setIsSubmitting1(true);
     setTimeout(() => {
       if (currentUser) {
-        addVehicle(currentUser.id, makeModel, plateNumber, 0);
+        const fullMakeModel = `${carMake.trim()} ${carModel.trim()}`;
+        addVehicle(currentUser.id, fullMakeModel, plateNumber, parseInt(odometer) || 0);
       }
       setIsSubmitting1(false);
       setOnboardingStep(2); // Progress to Step 2
@@ -106,24 +108,46 @@ export const CustomerOnboarding: React.FC = () => {
                 </div>
 
                 <form onSubmit={handleStep1Submit} className="space-y-6">
-                  {/* Make/Model */}
-                  <div className="space-y-2">
-                    <label className="font-headline text-xs font-bold text-[#44474c] tracking-widest block uppercase">
-                      Make / Model
-                    </label>
-                    <div className="relative">
-                      <Car className="h-5 w-5 text-[#cbd5e1] absolute left-3.5 top-1/2 -translate-y-1/2" />
-                      <input
-                        type="text"
-                        required
-                        value={makeModel}
-                        onChange={(e) => {
-                          setMakeModel(e.target.value);
-                          setShowWarning(true);
-                        }}
-                        placeholder="e.g. BMW M3 G80"
-                        className="w-full pl-11 pr-4 py-3 bg-[#f5f3f4] border border-[#c4c6cd] rounded-lg font-body focus:bg-white focus:outline-none transition-all"
-                      />
+                  {/* Make and Model fields */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="font-headline text-xs font-bold text-[#44474c] tracking-widest block uppercase">
+                        Car Make
+                      </label>
+                      <div className="relative">
+                        <Car className="h-5 w-5 text-[#cbd5e1] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          required
+                          value={carMake}
+                          onChange={(e) => {
+                            setCarMake(e.target.value);
+                            setShowWarning(true);
+                          }}
+                          placeholder="e.g. Maruti Suzuki, Toyota"
+                          className="w-full pl-11 pr-4 py-3 bg-[#f5f3f4] border border-[#c4c6cd] rounded-lg font-body focus:bg-white focus:outline-none transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="font-headline text-xs font-bold text-[#44474c] tracking-widest block uppercase">
+                        Car Model
+                      </label>
+                      <div className="relative">
+                        <Car className="h-5 w-5 text-[#cbd5e1] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          required
+                          value={carModel}
+                          onChange={(e) => {
+                            setCarModel(e.target.value);
+                            setShowWarning(true);
+                          }}
+                          placeholder="e.g. Swift, Camry"
+                          className="w-full pl-11 pr-4 py-3 bg-[#f5f3f4] border border-[#c4c6cd] rounded-lg font-body focus:bg-white focus:outline-none transition-all"
+                        />
+                      </div>
                     </div>
                   </div>
 

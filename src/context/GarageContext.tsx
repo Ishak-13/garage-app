@@ -488,9 +488,11 @@ export const GarageProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
 
     setUsers(prev => [...prev, newUser]);
-    setCurrentUser(newUser);
-    setIsAdmin(false);
-    setOnboardingStep(1); // Go to step 1: add vehicle
+    if (!isAdmin) {
+      setCurrentUser(newUser);
+      setIsAdmin(false);
+      setOnboardingStep(1); // Go to step 1: add vehicle
+    }
     return newUser;
   };
 
