@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { GarageProvider, useGarage } from './context/GarageContext';
 import { LoginView } from './components/LoginView';
 import { CustomerOnboarding } from './components/CustomerOnboarding';
@@ -11,11 +11,20 @@ import { CustomerDashboard } from './components/CustomerDashboard';
 import { AdminDashboard } from './components/AdminDashboard';
 import { InvoiceDetailView } from './components/InvoiceDetailView';
 import { AnimatePresence, motion } from 'motion/react';
+import { SplashAnimation } from './components/SplashAnimation';
 
 const GarageAppContent: React.FC = () => {
   const { currentUser, isAdmin, onboardingStep, selectedBillId } = useGarage();
+  const [showSplash, setShowSplash] = useState(true);
 
   const getPage = () => {
+    // 0. Active Initial App Splash
+    if (showSplash) {
+      return (
+        <SplashAnimation key="splash" onComplete={() => setShowSplash(false)} />
+      );
+    }
+
     // 1. Not Authenticated
     if (!currentUser) {
       return (

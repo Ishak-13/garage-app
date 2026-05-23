@@ -378,8 +378,8 @@ const INITIAL_BILLS: Bill[] = [
     notes: 'Next service recommended at 50,000 KM. Brake pads show 40% wear. Air filter cleaned but may need replacement in next cycle.',
     partsTotal: 4275.0,
     laborTotal: 2000.0,
-    gst: 1129.5,
-    grandTotal: 7404.5
+    gst: 0,
+    grandTotal: 6275.0
   }
 ];
 
@@ -577,8 +577,8 @@ export const GarageProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       .reduce((sum, item) => sum + item.total, 0);
 
     const subtotal = partsTotal + laborTotal;
-    const gstValue = subtotal * 0.18; // 18% GST as seen in invoice
-    const grandTotal = subtotal + gstValue;
+    const gstValue = 0; // No GST is added to bills as requested
+    const grandTotal = subtotal;
 
     const newBillId = `CAG-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
 

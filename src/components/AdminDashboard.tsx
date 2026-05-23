@@ -16,6 +16,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip
 } from 'recharts';
 import { motion, AnimatePresence } from 'motion/react';
+import { GarageLogo } from './GarageLogo';
 
 export const AdminDashboard: React.FC = () => {
   const { 
@@ -260,8 +261,8 @@ export const AdminDashboard: React.FC = () => {
 
   // Live total calculations for the drafted invoice
   const draftSubtotal = draftItems.reduce((sum, item) => sum + item.total, 0);
-  const draftTax = draftSubtotal * 0.18; // 18% GST matching the layout
-  const draftTotalAmount = draftSubtotal + draftTax;
+  const draftTax = 0; // GST is removed from bills
+  const draftTotalAmount = draftSubtotal;
 
   // Filter bills list
   const filteredBills = bills.filter(bill => {
@@ -280,10 +281,8 @@ export const AdminDashboard: React.FC = () => {
       {/* HEADER BAR FOR ADMINS */}
       <header className="fixed top-0 right-0 left-0 md:left-72 z-40 bg-white border-b border-[#c4c6cd]/50 h-16 shadow-xs select-none">
         <div className="flex justify-between items-center px-4 md:px-6 w-full max-w-7xl mx-auto h-full">
-          <div className="flex items-center gap-2">
-            <span className="p-2 bg-[#041627] rounded-lg text-white">
-              <Wrench className="h-5 w-5 stroke-[2]" />
-            </span>
+          <div className="flex items-center gap-2.5 h-10">
+            <GarageLogo variant="shield" className="h-full w-auto" />
             <h1 className="font-headline text-lg font-bold text-[#041627] tracking-tight">Workshop Console</h1>
           </div>
           <div className="flex items-center gap-3">
@@ -304,12 +303,9 @@ export const AdminDashboard: React.FC = () => {
 
       {/* LEFT NAVIGATION SIDEBAR (DESKTOP) */}
       <aside className="hidden md:flex flex-col h-full w-72 fixed left-0 top-0 border-r border-[#c4c6cd]/50 bg-white p-4 gap-2 z-50 select-none">
-        <div className="flex flex-col gap-1 mb-8 p-3 bg-[#f5f3f4] rounded-lg">
-          <div className="w-11 h-11 rounded-lg bg-[#041627] flex items-center justify-center mb-3">
-            <Wrench className="text-[#d2e4fb] h-5 w-5 stroke-[2.5]" />
-          </div>
-          <h2 className="font-headline text-base font-bold text-[#041627] leading-tight">City Auto Garage</h2>
-          <p className="text-[10px] text-[#74777d] font-bold leading-none mt-0.5 uppercase tracking-wide">Workshop #402</p>
+        <div className="flex flex-col gap-1 mb-8 p-3 bg-[#f5f3f4] rounded-lg items-center text-center">
+          <GarageLogo variant="full" textColor="dark" className="h-16 w-auto" />
+          <p className="text-[10px] text-[#74777d] font-bold leading-none mt-4.5 uppercase tracking-wide">Workshop #402</p>
         </div>
 
         <nav className="flex flex-col gap-1 flex-grow">
@@ -1300,7 +1296,7 @@ export const AdminDashboard: React.FC = () => {
                         <span className="font-mono text-sm text-[#1b1c1d]">₹{draftSubtotal.toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>GST resolves (18%)</span>
+                        <span>GST (0%)</span>
                         <span className="font-mono text-sm text-[#1b1c1d]">₹{draftTax.toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between border-t border-[#c4c6cd] pt-2.5 font-headline font-bold text-sm text-[#041627]">

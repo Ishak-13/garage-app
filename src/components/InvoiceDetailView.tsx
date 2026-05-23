@@ -7,6 +7,7 @@ import React, { useRef } from 'react';
 import { useGarage } from '../context/GarageContext';
 import { Wrench, ArrowLeft, ShieldCheck, Download, Calendar, Mail, FileText, CheckCircle, Car } from 'lucide-react';
 import { jsPDF } from 'jspdf';
+import { GarageLogo } from './GarageLogo';
 
 export const InvoiceDetailView: React.FC = () => {
   const { bills, selectedBillId, setSelectedBillId, users } = useGarage();
@@ -155,8 +156,8 @@ export const InvoiceDetailView: React.FC = () => {
         startY = 20;
       }
 
-      const subTotal = bill.grandTotal / 1.18;
-      const gstTax = bill.grandTotal - subTotal;
+      const gstTax = bill.gst || 0;
+      const subTotal = bill.grandTotal - gstTax;
 
       doc.setDrawColor(210, 214, 219);
       doc.line(14, startY + 4, 196, startY + 4);
@@ -177,7 +178,7 @@ export const InvoiceDetailView: React.FC = () => {
       doc.text('Parts & Labour Subtotal:', 110, startY);
       doc.text(`Rs. ${subTotal.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`, 170, startY);
 
-      doc.text('GST TAX INCLUSIVE (18%):', 110, startY + 5);
+      doc.text(gstTax > 0 ? 'GST TAX INCLUSIVE (18%):' : 'GST (0%):', 110, startY + 5);
       doc.text(`Rs. ${gstTax.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`, 170, startY + 5);
 
       doc.setDrawColor(4, 22, 39);
@@ -220,8 +221,8 @@ export const InvoiceDetailView: React.FC = () => {
   };
 
   // Tax calculations
-  const subTotal = bill.grandTotal / 1.18;
-  const gstTax = bill.grandTotal - subTotal;
+  const gstTax = bill.gst || 0;
+  const subTotal = bill.grandTotal - gstTax;
 
   // Currencies formatting based on amount sizes
   const formatCurrency = (amt: number) => {
@@ -297,11 +298,8 @@ export const InvoiceDetailView: React.FC = () => {
         {/* TOP COMPONENT HEADER BLOCK */}
         <section className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-[#cbd5e1]/65 pb-8 mb-8">
           <div className="space-y-4">
-            <div className="flex items-center gap-2 select-none">
-              <span className="p-2 bg-[#041627] text-white rounded-lg">
-                <Wrench className="h-5 w-5 stroke-[2]" />
-              </span>
-              <span className="font-headline text-lg font-bold text-[#041627] tracking-tight">CITY AUTO GARAGE</span>
+            <div className="flex items-center h-10 select-none">
+              <GarageLogo variant="full" textColor="dark" className="h-full w-auto" />
             </div>
             <p className="text-xs text-[#44474c] font-medium leading-normal max-w-xs">
               {garageAddress}<br />
@@ -419,7 +417,7 @@ export const InvoiceDetailView: React.FC = () => {
               <span className="font-mono text-sm text-[#1b1c1d]">{formatCurrency(subTotal)}</span>
             </div>
             <div className="flex justify-between">
-              <span>GST TAX INCLUSIVE (18%)</span>
+              <span>{gstTax > 0 ? 'GST TAX INCLUSIVE (18%)' : 'GST (0%)'}</span>
               <span className="font-mono text-sm text-[#1b1c1d]">{formatCurrency(gstTax)}</span>
             </div>
             

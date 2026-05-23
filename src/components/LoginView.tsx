@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { useGarage } from '../context/GarageContext';
 import { Wrench, UserPlus, ShieldAlert, Key, Lock, HelpCircle, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { GarageLogo } from './GarageLogo';
 
 export const LoginView: React.FC = () => {
   const { loginCustomer, registerCustomer, loginAdmin } = useGarage();
@@ -83,9 +84,8 @@ export const LoginView: React.FC = () => {
     <div className="relative min-h-screen py-16 px-4 md:px-8 flex flex-col items-center justify-center font-body bg-[#fbf9fa]">
       {/* Top Header Bar */}
       <header className="fixed top-0 w-full z-10 flex justify-between items-center px-4 md:px-6 h-16 bg-white/95 border-b border-[#c4c6cd]/40 backdrop-blur-md">
-        <div className="flex items-center gap-2">
-          <Wrench className="text-[#041627] h-6 w-6 stroke-[2]" />
-          <h1 className="font-headline text-xl font-bold text-[#041627] tracking-tight">City Auto Garage</h1>
+        <div className="flex items-center h-10">
+          <GarageLogo variant="full" textColor="dark" className="h-full w-auto" />
         </div>
         <div>
           {activeTab !== 'admin' ? (

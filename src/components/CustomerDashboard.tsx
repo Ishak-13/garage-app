@@ -10,6 +10,7 @@ import {
   ChevronRight, Plus, Receipt, Bell, ShieldAlert, BadgeCheck, Mail, MapPin, Edit3 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { GarageLogo } from './GarageLogo';
 
 export const CustomerDashboard: React.FC = () => {
   const { 
@@ -61,13 +62,17 @@ export const CustomerDashboard: React.FC = () => {
       {/* Top Application header */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-[#c4c6cd]/50 h-16 shadow-xs select-none">
         <div className="flex justify-between items-center px-4 md:px-6 w-full max-w-7xl mx-auto h-full">
-          <div className="flex items-center gap-2">
-            <span className="p-2 bg-[#efedef] rounded-lg">
-              <Car className="text-[#041627] h-5 w-5 stroke-[2]" />
-            </span>
-            <h1 className="font-headline text-lg font-bold text-[#041627] tracking-tight">
-              {activeCustomerTab === 'dashboard' ? 'City Auto Garage' : activeCustomerTab === 'profile' ? 'My Profile' : 'My Invoices'}
-            </h1>
+          <div className="flex items-center gap-2.5 h-10">
+            {activeCustomerTab === 'dashboard' ? (
+              <GarageLogo variant="full" textColor="dark" className="h-9 w-auto" />
+            ) : (
+              <>
+                <GarageLogo variant="shield" className="h-8 w-auto" />
+                <h1 className="font-headline text-lg font-bold text-[#041627] tracking-tight">
+                  {activeCustomerTab === 'profile' ? 'My Profile' : 'My Invoices'}
+                </h1>
+              </>
+            )}
           </div>
           <div className="flex items-center gap-4">
             <button className="p-2 hover:bg-[#efedef] rounded-full text-[#44474c] hover:text-[#041627] transition-all relative">
