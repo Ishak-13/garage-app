@@ -18,6 +18,25 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { GarageLogo } from './GarageLogo';
 
+const labelContainerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.04
+    }
+  }
+};
+
+const labelItemVariants = {
+  hidden: { opacity: 0, y: 15 },
+  show: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { type: 'spring', stiffness: 100, damping: 15 } 
+  }
+};
+
 export const AdminDashboard: React.FC = () => {
   const { 
     currentUser, updateProfile, users, vehicles, bills, stats, logout, addBill, updateBillStatus, deleteBill,
@@ -643,7 +662,12 @@ export const AdminDashboard: React.FC = () => {
                   <span>Click to view Profile</span>
                 </div>
 
-                <div className="space-y-3.5">
+                <motion.div 
+                  variants={labelContainerVariants}
+                  initial="hidden"
+                  animate="show"
+                  className="space-y-3.5"
+                >
                   {users
                     .filter(u => {
                       if (u.isAdmin) return false;
@@ -657,8 +681,9 @@ export const AdminDashboard: React.FC = () => {
                       const isSelected = selectedCustomerId === user.id;
 
                       return (
-                        <div 
+                        <motion.div 
                           key={user.id}
+                          variants={labelItemVariants}
                           onClick={() => setSelectedCustomerId(isSelected ? null : user.id)}
                           className={`p-4 bg-white border rounded-lg shadow-2xs hover:shadow-xs border-l-4 transition-all cursor-pointer flex justify-between items-center ${
                             isSelected 
@@ -685,10 +710,10 @@ export const AdminDashboard: React.FC = () => {
                             </span>
                             <ChevronRight className={`h-4.5 w-4.5 text-[#cbd5e1] transform transition-transform ${isSelected ? 'rotate-90' : ''}`} />
                           </div>
-                        </div>
+                        </motion.div>
                       );
                     })}
-                </div>
+                </motion.div>
               </div>
 
               {/* Selected Customer Side Detailed Breakdown Panel */}
@@ -698,7 +723,17 @@ export const AdminDashboard: React.FC = () => {
                     const customer = users.find(u => u.id === selectedCustomerId);
                     if (!customer) return null;
                     const custVehicles = vehicles.filter(v => v.ownerId === customer.id);
-                    const custBills = bills.filter(b => b.customerId === customer.id || b.customerPhone === customer.phone);
+                    const custBills = bills.filter(b => {
+                      if (b.customerId === customer.id) return true;
+                      if (b.customerPhone && customer.phone) {
+                        const bPhoneClean = b.customerPhone.replace(/\D/g, '');
+                        const cPhoneClean = customer.phone.replace(/\D/g, '');
+                        const bPhoneLast10 = bPhoneClean.length >= 10 ? bPhoneClean.slice(-10) : bPhoneClean;
+                        const cPhoneLast10 = cPhoneClean.length >= 10 ? cPhoneClean.slice(-10) : cPhoneClean;
+                        return bPhoneLast10 === cPhoneLast10;
+                      }
+                      return false;
+                    });
 
                     return (
                       <div className="bg-white rounded-xl border border-[#c4c6cd]/55 shadow-xs p-6 space-y-6 animate-fade-in border-t-4 border-t-[#041627]">
@@ -718,14 +753,23 @@ export const AdminDashboard: React.FC = () => {
                         <div className="space-y-2">
                           <p className="text-[10px] font-bold text-[#74777d] uppercase tracking-wider">Registered Vehicles ({custVehicles.length})</p>
                           {custVehicles.length > 0 ? (
-                            <div className="divide-y divide-[#c4c6cd]/20">
+                            <motion.div 
+                              variants={labelContainerVariants}
+                              initial="hidden"
+                              animate="show"
+                              className="divide-y divide-[#c4c6cd]/20"
+                            >
                               {custVehicles.map(veh => (
-                                <div key={veh.id} className="py-2 flex justify-between items-center">
+                                <motion.div 
+                                  key={veh.id} 
+                                  variants={labelItemVariants}
+                                  className="py-2 flex justify-between items-center"
+                                >
                                   <span className="text-sm font-semibold text-[#041627]">{veh.makeModel}</span>
                                   <span className="font-mono text-xs text-[#44474c] uppercase tracking-wider">{veh.plateNumber}</span>
-                                </div>
+                                </motion.div>
                               ))}
-                            </div>
+                            </motion.div>
                           ) : (
                             <p className="text-xs text-[#74777d] italic">No cars registered. Draft invoice tool will handle general appointment.</p>
                           )}
@@ -735,10 +779,16 @@ export const AdminDashboard: React.FC = () => {
                         <div className="space-y-3">
                           <p className="text-[10px] font-bold text-[#74777d] uppercase tracking-wider">Invoice History ({custBills.length})</p>
                           {custBills.length > 0 ? (
-                            <div className="grid grid-cols-1 gap-2.5 max-h-[160px] overflow-y-auto pr-1">
+                            <motion.div 
+                              variants={labelContainerVariants}
+                              initial="hidden"
+                              animate="show"
+                              className="grid grid-cols-1 gap-2.5 max-h-[160px] overflow-y-auto pr-1"
+                            >
                               {custBills.map(bill => (
-                                <div 
+                                <motion.div 
                                   key={bill.id} 
+                                  variants={labelItemVariants}
                                   onClick={() => setSelectedBillId(bill.id)}
                                   className="p-2 border border-[#cbd5e1]/40 rounded hover:border-[#041627] flex justify-between items-center transition-all cursor-pointer"
                                 >
@@ -752,9 +802,9 @@ export const AdminDashboard: React.FC = () => {
                                     </p>
                                     <span className="text-[#041627] font-bold">&gt;</span>
                                   </div>
-                                </div>
+                                </motion.div>
                               ))}
-                            </div>
+                            </motion.div>
                           ) : (
                             <p className="text-xs text-[#74777d] italic">No transaction logs available.</p>
                           )}
@@ -883,10 +933,16 @@ export const AdminDashboard: React.FC = () => {
                 <div className="col-span-2 text-center">Status</div>
               </div>
 
-              <div className="divide-y divide-[#c4c6cd]/25">
+              <motion.div 
+                variants={labelContainerVariants}
+                initial="hidden"
+                animate="show"
+                className="divide-y divide-[#c4c6cd]/25"
+              >
                 {filteredBills.map((bill) => (
-                  <div 
+                  <motion.div 
                     key={bill.id} 
+                    variants={labelItemVariants}
                     onClick={() => setSelectedBillId(bill.id)}
                     className="flex flex-col md:grid md:grid-cols-12 gap-2.5 md:gap-4 px-6 py-5 hover:bg-[#fbf9fa] transition-colors cursor-pointer group rounded"
                   >
@@ -910,7 +966,7 @@ export const AdminDashboard: React.FC = () => {
                       ₹{bill.grandTotal.toLocaleString()}
                     </div>
 
-                    <div className="col-span-2 flex items-center justify-between md:justify-center mt-2.5 md:mt-0">
+                    <div className="col-span-2 flex items-center justify-between md:justify-center mt-2.5 md:mt-0 pb-1.5 md:pb-0">
                       <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider leading-relaxed ${
                         bill.status === 'Paid' 
                           ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 shadow-3xs' 
@@ -923,13 +979,13 @@ export const AdminDashboard: React.FC = () => {
                         <ChevronRight className="h-5 w-5 text-[#041627]" />
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
 
                 {filteredBills.length === 0 && (
                   <p className="text-center py-8 text-xs text-[#74777d]">No invoices found matching current sorting selectors.</p>
                 )}
-              </div>
+              </motion.div>
             </div>
 
             {/* Pagination footnote */}

@@ -39,8 +39,40 @@ export const InvoiceDetailView: React.FC = () => {
     setSelectedBillId(null);
   };
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     try {
+      let logoDataUrl = '';
+      const svgElement = printAreaRef.current?.querySelector('svg');
+      if (svgElement) {
+        try {
+          logoDataUrl = await new Promise<string>((resolve, reject) => {
+            const svgString = new XMLSerializer().serializeToString(svgElement);
+            const svgBase64 = window.btoa(unescape(encodeURIComponent(svgString)));
+            const imgSrc = 'data:image/svg+xml;base64,' + svgBase64;
+            
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              // High DPI resolution for PDF crispness
+              canvas.width = 1280;
+              canvas.height = 360;
+              const ctx = canvas.getContext('2d');
+              if (ctx) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                resolve(canvas.toDataURL('image/png'));
+              } else {
+                reject(new Error('Canvas context not available'));
+              }
+            };
+            img.onerror = () => reject(new Error('Image failed to load'));
+            img.src = imgSrc;
+          });
+        } catch (err) {
+          console.error('Failed to convert SVG logo to image', err);
+        }
+      }
+
       const doc = new jsPDF();
       doc.setFont('Helvetica', 'normal');
 
@@ -53,17 +85,21 @@ export const InvoiceDetailView: React.FC = () => {
       doc.rect(0, 15, 210, 2, 'F');
 
       // Title & Contact Info
-      doc.setFont('Helvetica', 'bold');
-      doc.setFontSize(22);
-      doc.setTextColor(4, 22, 39);
-      doc.text('CITY AUTO GARAGE', 14, 32);
+      if (logoDataUrl) {
+        doc.addImage(logoDataUrl, 'PNG', 14, 19, 53, 15);
+      } else {
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(22);
+        doc.setTextColor(4, 22, 39);
+        doc.text('CITY AUTO GARAGE', 14, 32);
+      }
 
       doc.setFont('Helvetica', 'normal');
       doc.setFontSize(9);
       doc.setTextColor(80, 83, 88);
-      doc.text(garageAddress, 14, 38);
-      doc.text(`GSTIN: ${garageGstin} | Phone: ${garagePhone}`, 14, 43);
-      doc.text(`Email: ${garageEmail}`, 14, 48);
+      doc.text(garageAddress, 14, 39);
+      doc.text(`GSTIN: ${garageGstin} | Phone: ${garagePhone}`, 14, 44);
+      doc.text(`Email: ${garageEmail}`, 14, 49);
 
       // Tax Invoice Title Block
       doc.setFont('Helvetica', 'bold');
@@ -111,47 +147,105 @@ export const InvoiceDetailView: React.FC = () => {
       doc.text(`Plate: ${bill.vehicleDetails.plateNumber.toUpperCase()}`, 110, 75);
 
       // Table Header bg
-      doc.setFillColor(245, 243, 244);
-      doc.rect(14, 90, 182, 8, 'F');
+      doc.setFillColor(4, 22, 39); // Deep blue theme (#041627)
+      doc.rect(14, 90, 182, 10, 'F');
 
-      // Table Headers
+      // Table Header vertical dividers
+      doc.setDrawColor(255, 255, 255);
+      doc.setLineWidth(0.3);
+      [24, 99, 130, 146, 170].forEach((xOffset) => {
+        doc.line(xOffset, 90, xOffset, 100);
+      });
+      // Outer borders for header
+      doc.setDrawColor(4, 22, 39);
+      doc.line(14, 90, 14, 100);
+      doc.line(196, 90, 196, 100);
+
+      // Table Header Texts
       doc.setFont('Helvetica', 'bold');
       doc.setFontSize(9);
-      doc.setTextColor(116, 119, 125);
-      doc.text('#', 16, 95);
-      doc.text('Item Description', 25, 95);
-      doc.text('Category', 95, 95);
-      doc.text('Qty', 130, 95);
-      doc.text('Rate', 152, 95);
-      doc.text('Total', 178, 95);
+      doc.setTextColor(255, 255, 255);
+      
+      doc.text('#', 19, 96.5, { align: 'center' });
+      doc.text('Item Description', 26, 96.5);
+      doc.text('Category', 114.5, 96.5, { align: 'center' });
+      doc.text('Qty', 138, 96.5, { align: 'center' });
+      doc.text('Rate', 168, 96.5, { align: 'right' });
+      doc.text('Total', 194, 96.5, { align: 'right' });
 
       // Table rows
-      let startY = 104;
+      let startY = 100;
       doc.setFont('Helvetica', 'normal');
       doc.setFontSize(9);
       doc.setTextColor(27, 28, 29);
 
       bill.items.forEach((item, index) => {
-        if (startY > 260) {
+        if (startY > 250) {
           doc.addPage();
-          startY = 20;
+          // On new page, redraw table header!
+          doc.setFillColor(4, 22, 39);
+          doc.rect(14, 15, 182, 10, 'F');
+          
+          doc.setDrawColor(255, 255, 255);
+          doc.setLineWidth(0.3);
+          [24, 99, 130, 146, 170].forEach((xOffset) => {
+            doc.line(xOffset, 15, xOffset, 25);
+          });
+          doc.setDrawColor(4, 22, 39);
+          doc.line(14, 15, 14, 25);
+          doc.line(196, 15, 196, 25);
+
+          doc.setFont('Helvetica', 'bold');
+          doc.setFontSize(9);
+          doc.setTextColor(255, 255, 255);
+          doc.text('#', 19, 21.5, { align: 'center' });
+          doc.text('Item Description', 26, 21.5);
+          doc.text('Category', 114.5, 21.5, { align: 'center' });
+          doc.text('Qty', 138, 21.5, { align: 'center' });
+          doc.text('Rate', 168, 21.5, { align: 'right' });
+          doc.text('Total', 194, 21.5, { align: 'right' });
+
+          startY = 25;
         }
 
-        doc.text((index + 1).toString(), 16, startY);
-        doc.setFont('Helvetica', 'bold');
-        doc.text(item.name, 25, startY);
-        doc.setFont('Helvetica', 'normal');
-        doc.text(item.category, 95, startY);
-        doc.text(item.qty.toString(), 130, startY);
-        doc.text(`Rs. ${item.rate.toLocaleString('en-IN')}`, 152, startY);
-        doc.text(`Rs. ${item.total.toLocaleString('en-IN')}`, 178, startY);
+        // Alternating background zebra stripe
+        if (index % 2 === 1) {
+          doc.setFillColor(248, 250, 252);
+          doc.rect(14, startY, 182, 10, 'F');
+        }
 
-        doc.setDrawColor(240, 240, 240);
-        doc.line(14, startY + 3, 196, startY + 3);
-        startY += 8;
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(27, 28, 29);
+
+        // Grid lines (vertical and horizontal bottom)
+        doc.setDrawColor(218, 223, 230);
+        doc.setLineWidth(0.3);
+        
+        // Horizontal line
+        doc.line(14, startY + 10, 196, startY + 10);
+        
+        // Vertical boundary lines
+        [14, 24, 99, 130, 146, 170, 196].forEach((xOffset) => {
+          doc.line(xOffset, startY, xOffset, startY + 10);
+        });
+
+        // Write row values
+        doc.text((index + 1).toString(), 19, startY + 6.5, { align: 'center' });
+        
+        doc.setFont('Helvetica', 'bold');
+        doc.text(item.name, 26, startY + 6.5);
+        
+        doc.setFont('Helvetica', 'normal');
+        doc.text(item.category, 114.5, startY + 6.5, { align: 'center' });
+        doc.text(item.qty.toString(), 138, startY + 6.5, { align: 'center' });
+        doc.text(`Rs. ${item.rate.toLocaleString('en-IN')}`, 168, startY + 6.5, { align: 'right' });
+        doc.text(`Rs. ${item.total.toLocaleString('en-IN')}`, 194, startY + 6.5, { align: 'right' });
+
+        startY += 10;
       });
 
-      if (startY > 220) {
+      if (startY > 210) {
         doc.addPage();
         startY = 20;
       }
@@ -159,11 +253,10 @@ export const InvoiceDetailView: React.FC = () => {
       const gstTax = bill.gst || 0;
       const subTotal = bill.grandTotal - gstTax;
 
-      doc.setDrawColor(210, 214, 219);
-      doc.line(14, startY + 4, 196, startY + 4);
-      startY += 10;
+      startY += 5;
 
       // Terms
+      doc.setFont('Helvetica', 'normal');
       doc.setFontSize(8);
       doc.setTextColor(116, 119, 125);
       doc.text('TERMS & JURISDICTIONS:', 14, startY);

@@ -12,6 +12,25 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { GarageLogo } from './GarageLogo';
 
+const labelContainerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.04
+    }
+  }
+};
+
+const labelItemVariants = {
+  hidden: { opacity: 0, y: 15 },
+  show: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { type: 'spring', stiffness: 100, damping: 15 } 
+  }
+};
+
 export const CustomerDashboard: React.FC = () => {
   const { 
     currentUser, vehicles, activeServices, bills, logout, addVehicle, updateProfile, 
@@ -36,7 +55,17 @@ export const CustomerDashboard: React.FC = () => {
 
   // Filter components owned by user
   const userVehicles = vehicles.filter(v => v.ownerId === currentUser.id);
-  const userBills = bills.filter(b => b.customerId === currentUser.id || b.customerPhone === currentUser.phone);
+  const userBills = bills.filter(b => {
+    if (b.customerId === currentUser.id) return true;
+    if (b.customerPhone && currentUser.phone) {
+      const bPhoneClean = b.customerPhone.replace(/\D/g, '');
+      const uPhoneClean = currentUser.phone.replace(/\D/g, '');
+      const bPhoneLast10 = bPhoneClean.length >= 10 ? bPhoneClean.slice(-10) : bPhoneClean;
+      const uPhoneLast10 = uPhoneClean.length >= 10 ? uPhoneClean.slice(-10) : uPhoneClean;
+      return bPhoneLast10 === uPhoneLast10;
+    }
+    return false;
+  });
   const activeService = activeServices.find(s => userVehicles.some(v => v.id === s.vehicleId));
 
   const handleAddVehicleSubmit = (e: React.FormEvent) => {
@@ -200,12 +229,18 @@ export const CustomerDashboard: React.FC = () => {
                 </button>
               </div>
 
-              <div className="flex overflow-x-auto gap-4 pb-3 scrollbar-thin scrollbar-thumb-[#cbd5e1] scrollbar-track-transparent">
+              <motion.div 
+                variants={labelContainerVariants}
+                initial="hidden"
+                animate="show"
+                className="flex overflow-x-auto gap-4 pb-3 scrollbar-thin scrollbar-thumb-[#cbd5e1] scrollbar-track-transparent"
+              >
                 {userVehicles.map((vehicle, idx) => {
                   const isPrimaryGrad = vehicle.isPrimary;
                   return (
-                    <div 
+                    <motion.div 
                       key={vehicle.id}
+                      variants={labelItemVariants}
                       className={`flex-none w-72 p-5 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.04)] relative overflow-hidden group border ${
                         isPrimaryGrad 
                           ? 'bg-gradient-to-br from-[#041627] to-[#1a2b3c] text-white border-transparent' 
@@ -227,7 +262,7 @@ export const CustomerDashboard: React.FC = () => {
                         </div>
                       </div>
                       <Car className={`absolute -bottom-4 -right-4 h-28 w-28 opacity-[0.06] transform rotate-12 transition-transform duration-500 group-hover:rotate-0 ${isPrimaryGrad ? 'text-white' : 'text-[#041627]'}`} />
-                    </div>
+                    </motion.div>
                   );
                 })}
 
@@ -238,17 +273,23 @@ export const CustomerDashboard: React.FC = () => {
                   <Plus className="h-8 w-8 stroke-[1.8]" />
                   <span className="font-headline text-xs font-bold uppercase tracking-wider">REGISTER CAR</span>
                 </div>
-              </div>
+              </motion.div>
             </section>
 
             {/* Recent Services */}
             <section className="bg-white border border-[#c4c6cd]/55 rounded-xl p-6 shadow-xs">
               <h3 className="font-headline text-lg font-bold text-[#1b1c1d] mb-5">Recent Service Histology</h3>
               {userBills.length > 0 ? (
-                <div className="space-y-4">
+                <motion.div 
+                  variants={labelContainerVariants}
+                  initial="hidden"
+                  animate="show"
+                  className="space-y-4"
+                >
                   {userBills.slice(0, 3).map((bill) => (
-                    <div 
+                    <motion.div 
                       key={bill.id} 
+                      variants={labelItemVariants}
                       className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 rounded-lg bg-[#f5f3f4]/70 border border-[#c4c6cd]/30"
                     >
                       <div className="flex items-center gap-3.5">
@@ -291,9 +332,9 @@ export const CustomerDashboard: React.FC = () => {
                           </button>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               ) : (
                 <p className="text-xs text-[#74777d] text-center py-4">No service history bills recorded yet.</p>
               )}
@@ -412,9 +453,18 @@ export const CustomerDashboard: React.FC = () => {
                 <span className="text-[#44474c] font-headline text-2xs font-extrabold bg-[#efedef] px-2.5 py-1 rounded-full">{userVehicles.length} Registered</span>
               </div>
 
-              <div className="space-y-3">
+              <motion.div 
+                variants={labelContainerVariants}
+                initial="hidden"
+                animate="show"
+                className="space-y-3"
+              >
                 {userVehicles.map(vehicle => (
-                  <div key={vehicle.id} className="p-4 border border-[#c4c6cd]/40 hover:border-[#041627] rounded-lg flex items-center justify-between border-l-4 border-l-[#041627] bg-[#fbf9fa] shadow-2xs transition-all">
+                  <motion.div 
+                    key={vehicle.id} 
+                    variants={labelItemVariants}
+                    className="p-4 border border-[#c4c6cd]/40 hover:border-[#041627] rounded-lg flex items-center justify-between border-l-4 border-l-[#041627] bg-[#fbf9fa] shadow-2xs transition-all"
+                  >
                     <div className="min-w-0 pr-4">
                       <p className="font-headline text-sm font-bold text-[#041627] truncate">{vehicle.makeModel}</p>
                       <p className="font-mono text-xs text-[#74777d] uppercase mt-1 tracking-wider">{vehicle.plateNumber}</p>
@@ -426,9 +476,9 @@ export const CustomerDashboard: React.FC = () => {
                         </span>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
 
               <button 
                 onClick={() => setShowAddVehicleModal(true)}
@@ -452,10 +502,16 @@ export const CustomerDashboard: React.FC = () => {
             className="space-y-6 mt-4 select-none"
           >
             {userBills.length > 0 ? (
-              <div className="space-y-4">
+              <motion.div 
+                variants={labelContainerVariants}
+                initial="hidden"
+                animate="show"
+                className="space-y-4"
+              >
                 {userBills.map((bill) => (
-                  <div 
+                  <motion.div 
                     key={bill.id}
+                    variants={labelItemVariants}
                     onClick={() => setSelectedBillId(bill.id)}
                     className="p-5 bg-white border border-[#c4c6cd]/50 hover:border-[#041627] rounded-xl flex items-center justify-between cursor-pointer shadow-sm hover:shadow-md transition-all group"
                   >
@@ -484,9 +540,9 @@ export const CustomerDashboard: React.FC = () => {
                         View Invoice <ChevronRight className="h-4 w-4" />
                       </span>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             ) : (
               <div className="p-10 bg-white border border-[#c4c6cd]/50 rounded-xl text-center text-[#74777d]">
                 <Receipt className="h-10 w-10 mx-auto stroke-[1.5] text-[#cbd5e1] mb-2" />

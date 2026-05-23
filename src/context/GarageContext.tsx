@@ -459,7 +459,12 @@ export const GarageProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const loginCustomer = (phone: string) => {
     const cleanPhone = phone.replace(/\D/g, '');
-    const user = users.find(u => u.phone.replace(/\D/g, '') === cleanPhone || (u.phone === '9876543210' && cleanPhone === '9876543210'));
+    const lookupPhone = cleanPhone.length >= 10 ? cleanPhone.slice(-10) : cleanPhone;
+    const user = users.find(u => {
+      const uPhoneClean = u.phone.replace(/\D/g, '');
+      const uPhoneLast10 = uPhoneClean.length >= 10 ? uPhoneClean.slice(-10) : uPhoneClean;
+      return uPhoneLast10 === lookupPhone || (uPhoneLast10 === '9876543210' && lookupPhone === '9876543210');
+    });
     if (user) {
       setCurrentUser(user);
       setIsAdmin(false);
@@ -476,10 +481,12 @@ export const GarageProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   const registerCustomer = (name: string, phone: string) => {
+    const cleanPhone = phone.replace(/\D/g, '');
+    const finalPhone = cleanPhone.length >= 10 ? cleanPhone.slice(-10) : cleanPhone;
     const newUser: User = {
       id: `usr-${Date.now()}`,
       name,
-      phone: phone.replace(/\D/g, ''),
+      phone: finalPhone,
       email: '',
       address: '',
       isAdmin: false,
@@ -554,11 +561,14 @@ export const GarageProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const updateProfile = (name: string, email: string, phone: string, address: string, extra?: { gstin?: string; operatingHours?: string; avatarUrl?: string }) => {
     if (!currentUser) return;
 
+    const clean = phone.replace(/\D/g, '');
+    const finalPhone = clean.length >= 10 ? clean.slice(-10) : clean;
+
     const updatedUser = {
       ...currentUser,
       name,
       email,
-      phone: phone.replace(/\D/g, ''),
+      phone: finalPhone,
       address,
       ...(extra || {})
     };
