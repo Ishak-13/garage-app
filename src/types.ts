@@ -25,6 +25,9 @@ export interface Vehicle {
   odometer: number;
   isPrimary: boolean;
   type?: 'primary' | 'station-wagon' | 'suv' | 'other';
+  make?: string;
+  model?: string;
+  year?: string;
 }
 
 export interface ActiveService {

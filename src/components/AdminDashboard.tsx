@@ -939,48 +939,54 @@ export const AdminDashboard: React.FC = () => {
                 animate="show"
                 className="divide-y divide-[#c4c6cd]/25"
               >
-                {filteredBills.map((bill) => (
-                  <motion.div 
-                    key={bill.id} 
-                    variants={labelItemVariants}
-                    onClick={() => setSelectedBillId(bill.id)}
-                    className="flex flex-col md:grid md:grid-cols-12 gap-2.5 md:gap-4 px-6 py-5 hover:bg-[#fbf9fa] transition-colors cursor-pointer group rounded"
-                  >
-                    <div className="col-span-2 flex items-center md:gap-0 bg-[#041627]/5 md:bg-transparent rounded px-2.5 py-1 md:p-0">
-                      <span className="md:hidden text-[10px] font-bold text-[#74777d] uppercase tracking-wider mr-2">ID: </span>
-                      <span className="font-mono text-xs font-bold text-[#041627] tracking-wider">{bill.id}</span>
-                    </div>
-
-                    <div className="col-span-4 flex flex-col justify-center">
-                      <span className="text-sm font-bold text-[#1b1c1d]">{bill.customerName}</span>
-                      <span className="text-xs text-[#74777d] mt-1 font-semibold">{bill.vehicleDetails.makeModel}</span>
-                    </div>
-
-                    <div className="col-span-2 flex items-center text-xs text-[#44474c] font-semibold mt-1 md:mt-0">
-                      <span className="md:hidden text-[10px] font-bold text-[#74777d] uppercase tracking-wider mr-2">DATE: </span>
-                      {bill.date}
-                    </div>
-
-                    <div className="col-span-2 flex items-center md:justify-end font-headline text-[#041627] font-bold text-sm">
-                      <span className="md:hidden text-[10px] font-bold text-[#74777d] uppercase tracking-wider mr-2">TOTAL: </span>
-                      ₹{bill.grandTotal.toLocaleString()}
-                    </div>
-
-                    <div className="col-span-2 flex items-center justify-between md:justify-center mt-2.5 md:mt-0 pb-1.5 md:pb-0">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider leading-relaxed ${
-                        bill.status === 'Paid' 
-                          ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 shadow-3xs' 
-                          : 'bg-[#ffdad6] text-[#ba1a1a]'
-                      }`}>
-                        {bill.status}
-                      </span>
-                      <ChevronRight className="md:hidden h-5 w-5 text-[#cbd5e1] group-hover:translate-x-1 transition-all" />
-                      <div className="hidden md:block absolute right-6 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all">
-                        <ChevronRight className="h-5 w-5 text-[#041627]" />
+                <AnimatePresence mode="popLayout">
+                  {filteredBills.map((bill) => (
+                    <motion.div 
+                      layout="position"
+                      key={bill.id} 
+                      variants={labelItemVariants}
+                      initial="hidden"
+                      animate="show"
+                      exit={{ opacity: 0, y: -10, transition: { duration: 0.15 } }}
+                      onClick={() => setSelectedBillId(bill.id)}
+                      className="flex flex-col md:grid md:grid-cols-12 gap-2.5 md:gap-4 px-6 py-5 hover:bg-[#fbf9fa] transition-colors cursor-pointer group rounded"
+                    >
+                      <div className="col-span-2 flex items-center md:gap-0 bg-[#041627]/5 md:bg-transparent rounded px-2.5 py-1 md:p-0">
+                        <span className="md:hidden text-[10px] font-bold text-[#74777d] uppercase tracking-wider mr-2">ID: </span>
+                        <span className="font-mono text-xs font-bold text-[#041627] tracking-wider">{bill.id}</span>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
+
+                      <div className="col-span-4 flex flex-col justify-center">
+                        <span className="text-sm font-bold text-[#1b1c1d]">{bill.customerName}</span>
+                        <span className="text-xs text-[#74777d] mt-1 font-semibold">{bill.vehicleDetails.makeModel}</span>
+                      </div>
+
+                      <div className="col-span-2 flex items-center text-xs text-[#44474c] font-semibold mt-1 md:mt-0">
+                        <span className="md:hidden text-[10px] font-bold text-[#74777d] uppercase tracking-wider mr-2">DATE: </span>
+                        {bill.date}
+                      </div>
+
+                      <div className="col-span-2 flex items-center md:justify-end font-headline text-[#041627] font-bold text-sm">
+                        <span className="md:hidden text-[10px] font-bold text-[#74777d] uppercase tracking-wider mr-2">TOTAL: </span>
+                        ₹{bill.grandTotal.toLocaleString()}
+                      </div>
+
+                      <div className="col-span-2 flex items-center justify-between md:justify-center mt-2.5 md:mt-0 pb-1.5 md:pb-0 font-medium">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider leading-relaxed ${
+                          bill.status === 'Paid' 
+                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 shadow-3xs' 
+                            : 'bg-[#ffdad6] text-[#ba1a1a]'
+                        }`}>
+                          {bill.status}
+                        </span>
+                        <ChevronRight className="md:hidden h-5 w-5 text-[#cbd5e1] group-hover:translate-x-1 transition-all" />
+                        <div className="hidden md:block absolute right-6 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all">
+                          <ChevronRight className="h-5 w-5 text-[#041627]" />
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
 
                 {filteredBills.length === 0 && (
                   <p className="text-center py-8 text-xs text-[#74777d]">No invoices found matching current sorting selectors.</p>

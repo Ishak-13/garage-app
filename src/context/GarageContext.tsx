@@ -22,7 +22,7 @@ interface GarageContextProps {
   registerCustomer: (name: string, phone: string) => User;
   loginAdmin: (phone: string) => boolean;
   logout: () => void;
-  addVehicle: (ownerId: string, makeModel: string, plateNumber: string, odometer: number) => Vehicle;
+  addVehicle: (ownerId: string, makeModel: string, plateNumber: string, odometer: number, make?: string, model?: string, year?: string) => Vehicle;
   updateProfile: (name: string, email: string, phone: string, address: string, extra?: { gstin?: string; operatingHours?: string; avatarUrl?: string }) => void;
   addBill: (billData: Omit<Bill, 'id' | 'partsTotal' | 'laborTotal' | 'gst' | 'grandTotal'>) => Bill;
   updateBillStatus: (billId: string, status: 'Paid' | 'Pending' | 'Overdue') => void;
@@ -535,7 +535,7 @@ export const GarageProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setSelectedBillId(null);
   };
 
-  const addVehicle = (ownerId: string, makeModel: string, plateNumber: string, odometer: number) => {
+  const addVehicle = (ownerId: string, makeModel: string, plateNumber: string, odometer: number, make?: string, model?: string, year?: string) => {
     const newVehicle: Vehicle = {
       id: `veh-${Date.now()}`,
       ownerId,
@@ -543,7 +543,10 @@ export const GarageProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       plateNumber: plateNumber.toUpperCase(),
       odometer,
       isPrimary: true, // Auto set as primary if first
-      type: makeModel.toLowerCase().includes('outback') ? 'station-wagon' : (makeModel.toLowerCase().includes('f-150') || makeModel.toLowerCase().includes('wrangler') ? 'suv' : 'primary')
+      type: makeModel.toLowerCase().includes('outback') ? 'station-wagon' : (makeModel.toLowerCase().includes('f-150') || makeModel.toLowerCase().includes('wrangler') ? 'suv' : 'primary'),
+      make,
+      model,
+      year
     };
 
     // Update isPrimary of others if needed

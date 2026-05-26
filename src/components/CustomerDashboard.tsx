@@ -41,8 +41,9 @@ export const CustomerDashboard: React.FC = () => {
   
   // New vehicle state
   const [newMake, setNewMake] = useState('');
+  const [newModel, setNewModel] = useState('');
+  const [newYear, setNewYear] = useState('');
   const [newPlate, setNewPlate] = useState('');
-  const [newOdo, setNewOdo] = useState('');
 
   // Editable Profile fields
   const [profName, setProfName] = useState(currentUser?.name || '');
@@ -70,12 +71,14 @@ export const CustomerDashboard: React.FC = () => {
 
   const handleAddVehicleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMake || !newPlate) return;
+    if (!newMake || !newModel || !newYear || !newPlate) return;
     
-    addVehicle(currentUser.id, newMake, newPlate, 0);
+    const fullMakeModel = `${newMake.trim()} ${newModel.trim()}`;
+    addVehicle(currentUser.id, fullMakeModel, newPlate, 0, newMake.trim(), newModel.trim(), newYear.trim());
     setNewMake('');
+    setNewModel('');
+    setNewYear('');
     setNewPlate('');
-    setNewOdo('');
     setShowAddVehicleModal(false);
   };
 
@@ -252,7 +255,9 @@ export const CustomerDashboard: React.FC = () => {
                           <p className={`font-headline text-[9px] font-bold uppercase tracking-widest ${isPrimaryGrad ? 'text-white/60' : 'text-[#44474c]'}`}>
                             {vehicle.isPrimary ? 'PRIMARY VEHICLE' : (vehicle.type || 'VEHICLE').toUpperCase()}
                           </p>
-                          <h4 className="font-headline text-lg font-bold mt-1.5">{vehicle.makeModel}</h4>
+                          <h4 className="font-headline text-lg font-bold mt-1.5">
+                            {vehicle.makeModel} {vehicle.year ? `(${vehicle.year})` : ''}
+                          </h4>
                         </div>
                         <div className="mt-8">
                           <div className={`rounded-lg p-2.5 inline-block ${isPrimaryGrad ? 'bg-white/10' : 'bg-[#f5f3f4] border border-[#cbd5e1]'}`}>
@@ -466,7 +471,9 @@ export const CustomerDashboard: React.FC = () => {
                     className="p-4 border border-[#c4c6cd]/40 hover:border-[#041627] rounded-lg flex items-center justify-between border-l-4 border-l-[#041627] bg-[#fbf9fa] shadow-2xs transition-all"
                   >
                     <div className="min-w-0 pr-4">
-                      <p className="font-headline text-sm font-bold text-[#041627] truncate">{vehicle.makeModel}</p>
+                      <p className="font-headline text-sm font-bold text-[#041627] truncate">
+                        {vehicle.makeModel} {vehicle.year ? `(${vehicle.year})` : ''}
+                      </p>
                       <p className="font-mono text-xs text-[#74777d] uppercase mt-1 tracking-wider">{vehicle.plateNumber}</p>
                     </div>
                     <div className="flex items-center gap-1">
@@ -624,28 +631,58 @@ export const CustomerDashboard: React.FC = () => {
               </h3>
 
               <form onSubmit={handleAddVehicleSubmit} className="space-y-4">
-                <div className="space-y-1">
-                  <label className="block text-2xs font-extrabold text-[#74777d] uppercase tracking-wider">Make / Model</label>
-                  <input 
-                    type="text" 
-                    required
-                    value={newMake}
-                    onChange={(e) => setNewMake(e.target.value)}
-                    placeholder="e.g. Toyota RAV4"
-                    className="w-full px-3 py-2 bg-[#f5f3f4] border border-[#c4c6cd] rounded font-body text-sm focus:outline-none focus:bg-white"
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="block text-2xs font-extrabold text-[#74777d] uppercase tracking-wider">Make</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={newMake}
+                      onChange={(e) => setNewMake(e.target.value)}
+                      placeholder="e.g. Toyota"
+                      className="w-full px-3 py-2 bg-[#f5f3f4] border border-[#c4c6cd] rounded font-body text-sm focus:outline-none focus:bg-white"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-2xs font-extrabold text-[#74777d] uppercase tracking-wider">Model</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={newModel}
+                      onChange={(e) => setNewModel(e.target.value)}
+                      placeholder="e.g. Camry"
+                      className="w-full px-3 py-2 bg-[#f5f3f4] border border-[#c4c6cd] rounded font-body text-sm focus:outline-none focus:bg-white"
+                    />
+                  </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="block text-2xs font-extrabold text-[#74777d] uppercase tracking-wider">Plate Number</label>
-                  <input 
-                    type="text" 
-                    required
-                    value={newPlate}
-                    onChange={(e) => setNewPlate(e.target.value)}
-                    placeholder="XYZ-4567"
-                    className="w-full px-3 py-2 bg-[#f5f3f4] border border-[#c4c6cd] rounded font-body text-sm tracking-wider uppercase focus:outline-none focus:bg-white"
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="block text-2xs font-extrabold text-[#74777d] uppercase tracking-wider">Year</label>
+                    <input 
+                      type="number" 
+                      required
+                      min="1900"
+                      max={new Date().getFullYear() + 1}
+                      value={newYear}
+                      onChange={(e) => setNewYear(e.target.value)}
+                      placeholder="e.g. 2022"
+                      className="w-full px-3 py-2 bg-[#f5f3f4] border border-[#c4c6cd] rounded font-body text-sm focus:outline-none focus:bg-white"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-2xs font-extrabold text-[#74777d] uppercase tracking-wider">Plate Number</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={newPlate}
+                      onChange={(e) => setNewPlate(e.target.value)}
+                      placeholder="XYZ-4567"
+                      className="w-full px-3 py-2 bg-[#f5f3f4] border border-[#c4c6cd] rounded font-body text-sm tracking-wider uppercase focus:outline-none focus:bg-white"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex gap-3 pt-3 flex-row-reverse">

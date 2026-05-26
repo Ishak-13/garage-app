@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { useGarage } from '../context/GarageContext';
-import { Car, Hash, Gauge, ArrowRight, Lock, User, Mail, MapPin, BadgeCheck, History, Bell } from 'lucide-react';
+import { Car, Hash, Gauge, ArrowRight, Lock, User, Mail, MapPin, BadgeCheck, History, Bell, Calendar } from 'lucide-react';
 
 export const CustomerOnboarding: React.FC = () => {
   const { currentUser, onboardingStep, setOnboardingStep, addVehicle, updateProfile } = useGarage();
@@ -13,6 +13,7 @@ export const CustomerOnboarding: React.FC = () => {
   // Step 1: Vehicle Form State
   const [carMake, setCarMake] = useState('');
   const [carModel, setCarModel] = useState('');
+  const [carYear, setCarYear] = useState('');
   const [plateNumber, setPlateNumber] = useState('');
   const [odometer, setOdometer] = useState('0');
   const [showWarning, setShowWarning] = useState(false);
@@ -26,13 +27,13 @@ export const CustomerOnboarding: React.FC = () => {
 
   const handleStep1Submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!carMake || !carModel || !plateNumber) return;
+    if (!carMake || !carModel || !carYear || !plateNumber) return;
 
     setIsSubmitting1(true);
     setTimeout(() => {
       if (currentUser) {
         const fullMakeModel = `${carMake.trim()} ${carModel.trim()}`;
-        addVehicle(currentUser.id, fullMakeModel, plateNumber, parseInt(odometer) || 0);
+        addVehicle(currentUser.id, fullMakeModel, plateNumber, parseInt(odometer) || 0, carMake, carModel, carYear);
       }
       setIsSubmitting1(false);
       setOnboardingStep(2); // Progress to Step 2
@@ -151,21 +152,42 @@ export const CustomerOnboarding: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Plate Number input */}
-                  <div className="space-y-2">
-                    <label className="font-headline text-xs font-bold text-[#44474c] tracking-widest block uppercase">
-                      Plate Number
-                    </label>
-                    <div className="relative">
-                      <Hash className="h-5 w-5 text-[#cbd5e1] absolute left-3.5 top-1/2 -translate-y-1/2" />
-                      <input
-                        type="text"
-                        required
-                        value={plateNumber}
-                        onChange={(e) => setPlateNumber(e.target.value)}
-                        placeholder="ABC-1234"
-                        className="w-full pl-11 pr-4 py-3 bg-[#f5f3f4] border border-[#c4c6cd] rounded-lg font-body font-semibold tracking-wider uppercase focus:bg-white focus:outline-none transition-all"
-                      />
+                  {/* Year and Plate Number fields */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="font-headline text-xs font-bold text-[#44474c] tracking-widest block uppercase">
+                        Manufacture Year
+                      </label>
+                      <div className="relative">
+                        <Calendar className="h-5 w-5 text-[#cbd5e1] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="number"
+                          required
+                          min="1900"
+                          max={new Date().getFullYear() + 1}
+                          value={carYear}
+                          onChange={(e) => setCarYear(e.target.value)}
+                          placeholder="e.g. 2022"
+                          className="w-full pl-11 pr-4 py-3 bg-[#f5f3f4] border border-[#c4c6cd] rounded-lg font-body focus:bg-white focus:outline-none transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="font-headline text-xs font-bold text-[#44474c] tracking-widest block uppercase">
+                        Plate Number
+                      </label>
+                      <div className="relative">
+                        <Hash className="h-5 w-5 text-[#cbd5e1] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          required
+                          value={plateNumber}
+                          onChange={(e) => setPlateNumber(e.target.value)}
+                          placeholder="ABC-1234"
+                          className="w-full pl-11 pr-4 py-3 bg-[#f5f3f4] border border-[#c4c6cd] rounded-lg font-body font-semibold tracking-wider uppercase focus:bg-white focus:outline-none transition-all"
+                        />
+                      </div>
                     </div>
                   </div>
 
